@@ -12,10 +12,10 @@ class Puzzle(models.Model):
     return u"Puzzle: "+self.title
 
 def solution_upload_to(instance, filename):
-  return "solution/d%s_solution_%s.txt"%(instance.pk, uuid.uuid4())
+  return "solution/p%s_d%s_solution_%s.txt"%(instance.puzzle.pk, instance.scale, uuid.uuid4())
 
 def data_upload_to(instance, filename):
-  return "dataset/d%s_data.txt"%(instance.pk)
+  return "dataset/p%s_d%s_data.txt"%(instance.puzzle.pk, instance.scale)
 
 class Dataset(models.Model):
   puzzle = models.ForeignKey(Puzzle)
