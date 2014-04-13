@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block main %}
+
+<h1> {{ puzzle.title }}</h1>
+<h3> 題目說明 </h3>
+<pre>
+{{ puzzle.description }}
+
+</pre>
+{% if user.is_authenticated %}
+{% for dataset in puzzle.dataset_set.all %}
+<table width="100%">
+<tbody>
+<tr><th> Dataset </th> <th>分數 </th> <th> 下載位置 </th></tr>
+<tr>
+   <td>{{ dataset.scale }} </td>  
+   <td> {{ dataset.score }} </td>
+   <td>    <a href="{{ dataset.data.url }}"> 下載 </a>   </td>
+
+    </tr>
+    </tbody>
+</table>
+
+   <form action="{% url 'puzzle:submit' dataset.id %}" method="post" enctype="multipart/form-data" >      
+   <div style="float: left; display: block;">
+   <input type="file" name="output" />
+   <input type="file" name="source" />
+   {% csrf_token %}
+   </div>
+   <div style="display: block;">
+   <input type="submit" />  
+   </div>
+   </form>
+   <hr />
+{% endfor %}
+{% else %}
+ 請先登入，才能下載資料及回答問題。
+{% endif %}
+{% endblock %}

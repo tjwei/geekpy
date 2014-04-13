@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block main %}
+<script type="text/javascript" >
+function validateForm(n){
+var form = document.forms["ds"+n];
+if(! form["output"].value){
+alert("要提供 Output 檔");
+return false;
+}
+if(!form["source"].value){
+alert("要提供 .py Source code 檔");
+return false;
+}
+return true;
+}
+</script>
+{% if puzzle %}
+<h1> {{ puzzle.title }}</h1>
+<h3> 題目說明 </h3>
+<pre>
+{{ puzzle.description }}
+
+</pre>
+{% if not game_open %}
+目前不開放作答, 開放時間為 {{ TIME_START }} 至  {{ TIME_END }}
+{% elif user.is_authenticated %}
+{% for d in puzzle_ds %}
+<table width="100%">
+<tbody>
+<tr><th> Dataset </th> <th>分數 </th> <th>  Input </th></tr>
+<tr>
+   <td>{{ d.0.scale }} </td>  
+   <td> {{ d.0.score }} </td>   
+   <td>    <a href="{{ d.0.data.url }}"> 下載 </a>   </td>
+
+    </tr>
+    </tbody>
+</table>
+
+{% if d.1.result %}
+<b style="color: green" >已解出</b>
+<form action="{% url 'puzzle:delete' d.0.pk %}" method="post" enctype="multipart/form-data" name="ds{{ d.0.pk }}" onsubmit="return confirm('這將會刪除')">  
+<input type="submit" value="刪除本題答案並重作" />
+{% csrf_token %}
+</form>
+
+{% else %}
+   {% if d.1 %}
+   <b style="color: red" >上次嘗試的時間是 {{ d.1.submitted_time }}</b>
+   {% endif %}
+   <form action="{% url 'puzzle:submit' d.0.pk %}" method="post" enctype="multipart/form-data" name="ds{{ d.0.pk }}" onsubmit="return validateForm('{{ d.0.pk }}')">      
+   <div style="float: left; display: block;">
+   Output 檔：<input type="file" name="output" />
+   .py Source code 檔: <input type="file" name="source" />
+   {% csrf_token %}
+   </div>
+   <div style="display: block;">
+   <input type="submit" value="送出答案" />  
+   </div>
+   </form>
+{% endif %}
+   <br />
+   <div style="clear: both" ></div>
+   <hr />
+   <br />
+{% endfor %}
+{% else %}
+ 請先登入，才能下載資料及回答問題。
+{% endif %}
+{% else %}
+<h1> 歡迎! </h1>
+<h3> 請點右邊的題目連結開始作答 </h3>
+{% endif %}
+
+{% endblock %}
