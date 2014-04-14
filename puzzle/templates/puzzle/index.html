@@ -20,7 +20,7 @@ return true;
 <h1> {{ puzzle.title }}</h1>
 <h3> 題目說明 </h3>
 <pre>
-{{ puzzle.description }}
+{{ puzzle.description|safe }}
 
 </pre>
 {% if not game_open %}
@@ -33,7 +33,7 @@ return true;
 <tr>
    <td>{{ d.0.scale }} </td>  
    <td> {{ d.0.score }} </td>   
-   <td>    <a href="{{ d.0.data.url }}"> 下載 </a>   </td>
+   <td>    <a href="{{ d.0.data.url }}" download > 下載 </a>   </td>
 
     </tr>
     </tbody>
