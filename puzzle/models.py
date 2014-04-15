@@ -28,7 +28,7 @@ class Dataset(models.Model):
 
 class UserProfile(models.Model):
     STUDENT_TYPE_CHOICES=((0, '社會組(或純練習)'), (1,'高中以下'), (2,'大學/專科'))
-    user = models.OneToOneField("auth.User")    
+    user = models.OneToOneField("auth.User", related_name="profile")    
     student_type = models.IntegerField("參加組別", default=0, choices=STUDENT_TYPE_CHOICES)
     desc = models.TextField("簡介：（學校、報名票種、序號等等）")
     score = models.IntegerField(default=0)

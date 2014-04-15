@@ -48,10 +48,11 @@
 function reloadframe() {   
         document.getElementById("toplist").src = document.getElementById("toplist").src;
     }   
+$(document).ready(function(){setInterval(reloadframe, 300000)})
 </script>
 </head>
 
-<body id="{% block body_id %}body{% endblock %}" onload="setInterval(reloadframe, 300000)">
+<body id="{% block body_id %}body{% endblock %}">
 
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
 <div class="container">
@@ -116,8 +117,8 @@ function reloadframe() {
     <div class="panel panel-default">
     <div class="panel-body">
     {% block score %}
-      {% if user.get_profile %}
-      目前總分: {{ user.get_profile.score|slugify|slice:":-6" }}
+      {% if user.profile %}
+      目前總分: {{ user.profile.score|slugify|slice:":-6" }}
       {% endif %}
     {% endblock %}
     {% block puzzle_list %}

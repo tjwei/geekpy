@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
+from django.utils.timezone import utc
 # Create your views here.
 from puzzle.models import Puzzle, Dataset, Answer, UserProfile
 
@@ -17,7 +18,7 @@ def game_open():
 
 def index(request, pk):
   try:
-    user= request.user.get_profile()
+    user= request.user.profile
   except:
     user = None
   puzzle, puzzle_ds = None, []
@@ -35,8 +36,13 @@ def index(request, pk):
       try:
         sol = user.answer_set.get(dataset=d)
       except:	
-         sol = None      
-      datas.append((d, sol))
+         sol = None
+      if sol:
+          timediff = datetime.utcnow().replace(tzinfo=utc)-sol.submitted_time
+          timediff = int(timediff.total_seconds())+1
+      else:
+          timediff = 10000000
+      datas.append((d, sol, timediff))
     rtn.append( (p, datas))
     if p == puzzle:
       puzzle_ds = datas
@@ -94,7 +100,7 @@ def submit(request, pk):
   if not game_open():
     return HttpResponse("Sorry, the game is closed")
   d = get_object_or_404(Dataset, pk = pk)  
-  user= request.user.get_profile()
+  user= request.user.profile
   result = check_ans(d.solution,  request.FILES['output'])
   ans, new = user.answer_set.get_or_create(dataset=d)    
   if new or not ans.result:
@@ -118,7 +124,7 @@ def del_answer(request, pk):
   if not game_open():
     return HttpResponse("Sorry, the game is closed")
   d = get_object_or_404(Dataset, pk = pk)  
-  user= request.user.get_profile()
+  user= request.user.profile
   try:
     ans = user.answer_set.get(dataset=d)
   except:
