@@ -2,6 +2,9 @@
 {% load i18n %}
 
 {% block main %}
+<script>
+var start_seconds = new Date().getTime() / 1000;
+</script>
 <script type="text/javascript" >
 function validateForm(n){
 var form = document.forms["ds"+n];
@@ -45,11 +48,9 @@ return true;
 <input type="submit" value="刪除本題答案並重作" />
 {% csrf_token %}
 </form>
-
 {% else %}
    {% if d.1 %}
    <b style="color: red" >上次嘗試的時間是 {{ d.1.submitted_time }}</b>
-   至今 {{ d.2 }} 秒
    {% else %}
     
    
@@ -61,7 +62,7 @@ return true;
    {% csrf_token %}
    </div>
    <div style="display: block;">
-   <input type="submit" value="送出答案" />  
+   <input type="submit" value="送出答案" cdtime="{{ d.2 }}"/>  
    </div>
    </form>
 {% endif %}
@@ -78,4 +79,22 @@ return true;
 <h3> 請點右邊的題目連結開始作答 </h3>
 {% endif %}
 
+<script>
+function update_cdtime(){
+$(":submit[cdtime]").each(function(i,b){
+  var cdtime = b.attributes["cdtime"]
+  if(cdtime.value>1){
+    cdtime.value-=1;
+    b.value="CD等待"+cdtime.value+"秒";
+    b.disabled = true
+   }
+  else if(cdtime.value==1){
+      cdtime.value=0;
+      b.value="送出答案";
+      b.disabled = false
+   }
+})
+}
+setInterval("update_cdtime()", 1000);
+</script>
 {% endblock %}

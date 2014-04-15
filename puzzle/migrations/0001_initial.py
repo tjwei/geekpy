@@ -30,9 +30,10 @@ class Migration(SchemaMigration):
         # Adding model 'UserProfile'
         db.create_table(u'puzzle_userprofile', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
+            ('user', self.gf('django.db.models.fields.related.OneToOneField')(related_name='profile', unique=True, to=orm['auth.User'])),
             ('student_type', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('desc', self.gf('django.db.models.fields.TextField')()),
+            ('score', self.gf('django.db.models.fields.IntegerField')(default=0)),
         ))
         db.send_create_signal(u'puzzle', ['UserProfile'])
 
@@ -43,7 +44,7 @@ class Migration(SchemaMigration):
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['puzzle.UserProfile'])),
             ('answer', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
             ('source_code', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('submitted_time', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2014, 4, 11, 0, 0))),
+            ('submitted_time', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2014, 4, 15, 0, 0))),
             ('result', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal(u'puzzle', ['Answer'])
@@ -107,7 +108,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'result': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'source_code': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
-            'submitted_time': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 4, 11, 0, 0)'}),
+            'submitted_time': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 4, 15, 0, 0)'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['puzzle.UserProfile']"})
         },
         u'puzzle.dataset': {
@@ -129,8 +130,9 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'UserProfile'},
             'desc': ('django.db.models.fields.TextField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'score': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'student_type': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'profile'", 'unique': 'True', 'to': u"orm['auth.User']"})
         }
     }
 

@@ -3,9 +3,16 @@ from django.db import models
 import uuid
 from django.utils import timezone
 from django.contrib import auth
+class PuzzleCollection(models.Model):
+  title = models.CharField(max_length=100)
+  description = models.TextField()
+  def __unicode__(self):
+    return u"PuzzleCollection: "+self.title
+
 
 # Create your models here.
 class Puzzle(models.Model):
+  collection = models.ForeignKey(PuzzleCollection)
   title = models.CharField(max_length=100)
   description = models.TextField()
   def __unicode__(self):

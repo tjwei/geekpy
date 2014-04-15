@@ -10,7 +10,7 @@ from django.utils.timezone import utc
 from puzzle.models import Puzzle, Dataset, Answer, UserProfile
 
 from datetime import datetime
-
+COOL_DOWN_TIME = 300
 TIME_START = datetime(2014,4,13, tzinfo=timezone.get_current_timezone())
 TIME_END = datetime(2014,4,18, 15, tzinfo=timezone.get_current_timezone())
 def game_open():
@@ -39,10 +39,10 @@ def index(request, pk):
          sol = None
       if sol:
           timediff = datetime.utcnow().replace(tzinfo=utc)-sol.submitted_time
-          timediff = int(timediff.total_seconds())+1
+          cdtime = max(COOL_DOWN_TIME-int(timediff.total_seconds()), 0)
       else:
-          timediff = 10000000
-      datas.append((d, sol, timediff))
+          cdtime = 0
+      datas.append((d, sol, cdtime))
     rtn.append( (p, datas))
     if p == puzzle:
       puzzle_ds = datas
@@ -98,13 +98,17 @@ def del_file(f):
 
 def submit(request, pk):
   if not game_open():
-    return HttpResponse("Sorry, the game is closed")
+    return HttpResponse("Sorry, the game is closed")  
   d = get_object_or_404(Dataset, pk = pk)  
   user= request.user.profile
   result = check_ans(d.solution,  request.FILES['output'])
   ans, new = user.answer_set.get_or_create(dataset=d)    
   if new or not ans.result:
       if not new:
+        timediff = timezone.now() - ans.submitted_time
+        secs = timediff.total_seconds()
+        if secs < COOL_DOWN_TIME:
+            return HttpResponse("Please wait for cool down.%f secs"%(300-secs))
 	del_file(ans.answer)
 	del_file(ans.source_code)
       ans.dataset = d
