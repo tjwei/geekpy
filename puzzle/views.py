@@ -7,12 +7,14 @@ from django.views import generic
 from django.utils import timezone
 from django.utils.timezone import utc
 # Create your views here.
-from puzzle.models import Puzzle, Dataset, Answer, UserProfile
+from puzzle.models import Puzzle, Dataset, Answer, UserProfile, PuzzleCollection
 
 from datetime import datetime
 COOL_DOWN_TIME = 300
 TIME_START = datetime(2014,4,13, tzinfo=timezone.get_current_timezone())
 TIME_END = datetime(2014,4,18, 15, tzinfo=timezone.get_current_timezone())
+COLLECTION=PuzzleCollection.objects.get(title=u"測試")
+PUZZLES = COLLECTION.puzzle_set
 def game_open():
   return TIME_START <= timezone.now() <= TIME_END
 
@@ -22,7 +24,7 @@ def index(request, pk):
   except:
     user = None
   puzzle, puzzle_ds = None, []
-  puzzle_list = Puzzle.objects.all()
+  puzzle_list = PUZZLES.all()
   if pk:
     try:
       puzzle = puzzle_list.get(pk=pk)
@@ -119,7 +121,7 @@ def submit(request, pk):
       ans.save()
       if result:
 	timedelta = (timezone.now() - TIME_START).total_seconds()
-        user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True))+ 1) - timedelta
+        user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection==COLLECTION)+ 1) - timedelta
         user.save()
   return HttpResponseRedirect(reverse("puzzle:puzzle", args=(d.puzzle.pk,)))
 
@@ -135,7 +137,7 @@ def del_answer(request, pk):
     return HttpResponse("本題尚未作答，無法刪除")
   ans.delete()
   timedelta = (timezone.now() - TIME_START).total_seconds()
-  user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True))+ 1) - timedelta
+  user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection==COLLECTION)+ 1) - timedelta
   user.save()
   return HttpResponseRedirect(reverse("puzzle:puzzle", args=(d.puzzle.pk,)))
 
