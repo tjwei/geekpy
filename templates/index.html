@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load i18n %}
-
 {% block meta_title %}{% trans "Home" %}{% endblock %}
 {% block title %}{% trans "Home" %}{% endblock %}
 
@@ -10,18 +9,10 @@
 
 {% block main %}
 {% blocktrans %}
-<h1>蟒極客 Geek.py 平台公開測試中</h1>
-每個題目提供有一組到多組的 dataset，作答不限時間，不限次數。
-目前因為是公開測試，題目較簡單。<br />
-正式比賽將於 4/18 17:00 開始到 4/20 日 23:59 截止。</br>
-預計於 4/17 日晚上測試結束，目前測試帳號有可能會被刪除。
-
-
-<h2> You Can Help </h2>
-<div>
-歡迎各界同好先進，提供獎品贊助、題目構想以及美工素材。
-也歡迎測試提供意見。
-</div>
+<h1> 第二次蟒極客 Geek.py 競賽 </h1>
+台灣時間 6/20 17:00 開始到 6/22 日 23:59 截止。</br>
+前五名可贏得 5 張 COSCUP 2014 門票
+歡迎各界人士報名。
 
 {% endblocktrans %}
 {% load blog_tags keyword_tags i18n %}
@@ -34,7 +25,7 @@
     >{{ recent_post.title }}</a></li>
 {% endfor %}
 </ul>
-<img style="display:block; margin: auto;" src="http://geekpy.org/static/media/uploads/img/geekpy.png" />
+<img style="display:block; margin: auto;" src="/static/media/uploads/img/geekpy.png" />
 {% endif %}
 
 {% endblock %}

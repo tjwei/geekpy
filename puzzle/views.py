@@ -11,12 +11,51 @@ from puzzle.models import Puzzle, Dataset, Answer, UserProfile, PuzzleCollection
 
 from datetime import datetime
 COOL_DOWN_TIME = 300
-TIME_START = datetime(2014,4,13, tzinfo=timezone.get_current_timezone())
-TIME_END = datetime(2014,4,18, 15, tzinfo=timezone.get_current_timezone())
-COLLECTION=PuzzleCollection.objects.get(title=u"測試")
+TIME_START = datetime(2014,4,18, 17,  tzinfo=timezone.get_current_timezone())
+TIME_END = datetime(2024,4,20, 23, 59, tzinfo=timezone.get_current_timezone())
+COLLECTION=PuzzleCollection.objects.get(title=u"第一次競賽")
+COLLECTION2=PuzzleCollection.objects.get(title=u"測試")
+COLLECTIONS=[COLLECTION, COLLECTION2]
 PUZZLES = COLLECTION.puzzle_set
+PUZZLES2 = COLLECTION2.puzzle_set
 def game_open():
   return TIME_START <= timezone.now() <= TIME_END
+
+def index2(request, pk):
+  try:
+    user= request.user.profile
+  except:
+    user = None
+  puzzle, puzzle_ds = None, []
+  puzzle_list = Puzzle.objects.all()
+  if pk:
+    try:
+      puzzle = puzzle_list.get(pk=pk)
+    except:
+      pass
+  info=str(user)+"\n"
+  rtn = []  
+  for p in puzzle_list:
+    datas=[]
+    for d in p.dataset_set.all():     
+      try:
+        sol = user.answer_set.get(dataset=d)
+      except:	
+         sol = None
+      if sol:
+          timediff = datetime.utcnow().replace(tzinfo=utc)-sol.submitted_time
+          cdtime = max(COOL_DOWN_TIME-int(timediff.total_seconds()), 0)
+      else:
+          cdtime = 0
+      datas.append((d, sol, cdtime))
+    rtn.append( (p, datas))
+    if p == puzzle:
+      puzzle_ds = datas
+  context = { "puzzle_list" : rtn, "info": info, "puzzle": puzzle, "puzzle_ds": puzzle_ds, "game_open": True,
+	     "TIME_START":TIME_START, "TIME_END": TIME_END}  
+  return render(request, "puzzle/index.html", context)
+
+###############################################################3
 
 def index(request, pk):
   try:
@@ -24,7 +63,7 @@ def index(request, pk):
   except:
     user = None
   puzzle, puzzle_ds = None, []
-  puzzle_list = PUZZLES.all()
+  puzzle_list = PUZZLES.all()|PUZZLES2.all()
   if pk:
     try:
       puzzle = puzzle_list.get(pk=pk)
@@ -51,6 +90,7 @@ def index(request, pk):
   context = { "puzzle_list" : rtn, "info": info, "puzzle": puzzle, "puzzle_ds": puzzle_ds, "game_open": game_open(),
 	     "TIME_START":TIME_START, "TIME_END": TIME_END}  
   return render(request, "puzzle/index.html", context)
+
 def toplist(request, n):  
   l = UserProfile.objects.order_by('-score')
   if n:
@@ -66,6 +106,7 @@ def toplist(request, n):
 class PuzzleDetailView(generic.DetailView):
   template_name = "puzzle/puzzle_detail.html"
   model = Puzzle
+
 def check_ans(f1, f2):
   f1.open()
   f2.open()  
@@ -121,7 +162,7 @@ def submit(request, pk):
       ans.save()
       if result:
 	timedelta = (timezone.now() - TIME_START).total_seconds()
-        user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection==COLLECTION)+ 1) - timedelta
+        user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection in COLLECTIONS))
         user.save()
   return HttpResponseRedirect(reverse("puzzle:puzzle", args=(d.puzzle.pk,)))
 

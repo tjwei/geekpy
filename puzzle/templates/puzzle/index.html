@@ -23,8 +23,9 @@ return true;
 <h1> {{ puzzle.title }}</h1>
 <h3> 題目說明 </h3>
 <pre>
+{% if game_open %}
 {{ puzzle.description|safe }}
-
+{% endif %}
 </pre>
 {% if not game_open %}
 目前不開放作答, 開放時間為 {{ TIME_START }} 至  {{ TIME_END }}
@@ -73,12 +74,17 @@ return true;
 {% endfor %}
 {% else %}
  請先登入，才能下載資料及回答問題。
+<img src="/static/media/uploads/img/geekpy_hg.png" width="100%" />
 {% endif %}
+{% else %}
+{% if not game_open %}
+目前不開放作答, 開放時間為 {{ TIME_START }} 至  {{ TIME_END }}
 {% else %}
 <h1> 歡迎! </h1>
 <h3> 請點右邊的題目連結開始作答 </h3>
 {% endif %}
-
+<img src="/static/media/uploads/img/geekpy_hg.png" width="100%" />
+{% endif %}
 <script>
 function update_cdtime(){
 $(":submit[cdtime]").each(function(i,b){

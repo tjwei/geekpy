@@ -56,12 +56,87 @@
 <![endif]-->
 
 {% block extra_head %}{% endblock %}
+<script src="/static/js/br/brython.js" type="text/javascript"></script> 
 
+<script type="text/python3">
+from browser import window
+window.None=None
+print("""Python 3.3.2+ (default, Oct  9 2013, 14:50:09) 
+[GCC 4.8.1] on linux
+Type "help", "copyright", "credits" or "license" for more information.""")
+window.credits = """    Thanks to CWI, CNRI, BeOpen.com, Zope Corporation and a cast of thousands
+    for supporting Python development.  See www.python.org for more information."""
+window.copyright="""
+Copyright (c) 2001-2013 Python Software Foundation.
+All Rights Reserved.
+
+Copyright (c) 2000 BeOpen.com.
+All Rights Reserved.
+
+Copyright (c) 1995-2001 Corporation for National Research Initiatives.
+All Rights Reserved.
+
+Copyright (c) 1991-1995 Stichting Mathematisch Centrum, Amsterdam.
+All Rights Reserved."""
+window.license =""" powered by brython """
+</script>
+
+
+<script type='text/javascript'>//<![CDATA[ 
+// based on http://jsfiddle.net/Glutamat/jW7jp/show/
+xbrython=function(){
+brython(1);
+if(!window.webkitURL) __debug=function(){console.log.apply(this,arguments);};
+else __debug=function(){};
+
+if (window.webkitURL) {
+
+var ish, _eval, _call = Function.prototype.call        
+    Function.prototype.call = function () {       
+        if (arguments.length > 0 && this.name === "evaluate") {
+                ish = arguments[0];
+                _eval = ish.evaluate;                
+                Function.prototype.call = _call;                
+                ish.evaluate = function (expr) {
+                    var newExpr, rawExpr;
+                    expr = expr || "";
+                    exprx = expr.split("\n") 
+                    if(expr.substring(0,6)=="with (" && expr.indexOf("commandLineAPI") > -1 && exprx.length >=3){                        
+			    rawExpr = exprx.slice(1,-1).join("\n")			
+                            __debug(rawExpr)
+			    if(rawExpr != "this"){	
+                            if(rawExpr == "help") return  "Type help() for interactive help, or help(object) for help about object."		    
+			    newExpr = __BRYTHON__.py2js(rawExpr, "__main__").to_js() 
+			    
+			    result =  _eval.call(this, newExpr)
+			    if(result == None) return;
+				      try{
+							//if(result.__repr__) return result.__repr__()
+							    if(result.value) return result.value                       
+					    }
+					      catch(e){
+					      }
+		                  return result
+			    }
+                    }                    
+                    return _eval.apply(this, arguments);
+                };           
+            return _call.apply(this, arguments);
+        }
+    };    
+} else {
+   console.log ("Fortunately this works only with Webkit");
+}
+}//]]>  
+</script>
 <script>
 function reloadframe() {   
         document.getElementById("toplist").src = document.getElementById("toplist").src;
     }   
-$(document).ready(function(){setInterval(reloadframe, 300000)})
+$(document).ready(function(){
+//setInterval(reloadframe, 300000);
+xbrython();
+})
 </script>
 </head>
 

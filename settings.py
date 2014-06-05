@@ -373,3 +373,4 @@ except ImportError:
     pass
 else:
     set_dynamic_settings(globals())
+JQUERY_FILENAME = 'jquery-1.11.0.min.js'

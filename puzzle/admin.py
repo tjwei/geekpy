@@ -18,14 +18,16 @@ class PuzzleCollectionAdmin(admin.ModelAdmin):
 
 class PuzzleAdmin(admin.ModelAdmin):
   inlines = [DatasetInline]
-  
+
+class AnswerAdmin(admin.ModelAdmin):
+  list_display = ('user', 'dataset', 'result', 'submitted_time', 'answer')  
 class DatasetAdmin(admin.ModelAdmin):
   inlines = [AnswerInline]
 
 admin.site.register(PuzzleCollection, PuzzleCollectionAdmin)
 admin.site.register(Puzzle, PuzzleAdmin)
 admin.site.register(Dataset, DatasetAdmin)
-admin.site.register(Answer)
+admin.site.register(Answer, AnswerAdmin)
 
 from mezzanine.accounts.admin import UserProfileAdmin
 from django.contrib.auth.models import User
