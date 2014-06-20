@@ -13,7 +13,7 @@ alert("要提供 Output 檔");
 return false;
 }
 if(!form["source"].value){
-alert("要提供 .py Source code 檔");
+alert("要提供 Source code 檔");
 return false;
 }
 return true;
@@ -59,7 +59,7 @@ return true;
    <form action="{% url 'puzzle:submit' d.0.pk %}" method="post" enctype="multipart/form-data" name="ds{{ d.0.pk }}" onsubmit="return validateForm('{{ d.0.pk }}')" >      
    <div style="float: left; display: block;">
    Output 檔：<input type="file" name="output" />
-   .py Source code 檔: <input type="file" name="source" />
+   Source code 檔: <input type="file" name="source" />
    {% csrf_token %}
    </div>
    <div style="display: block;">

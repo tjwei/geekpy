@@ -11,23 +11,27 @@ from puzzle.models import Puzzle, Dataset, Answer, UserProfile, PuzzleCollection
 
 from datetime import datetime
 COOL_DOWN_TIME = 300
-TIME_START = datetime(2014,4,18, 17,  tzinfo=timezone.get_current_timezone())
-TIME_END = datetime(2024,4,20, 23, 59, tzinfo=timezone.get_current_timezone())
+#TIME_START = datetime(2014,4,18, 17,  tzinfo=timezone.get_current_timezone())
+#TIME_END = datetime(2024,4,20, 23, 59, tzinfo=timezone.get_current_timezone())
+TIME_START = datetime(2014,6,20, 17,  tzinfo=timezone.get_current_timezone())
+TIME_END = datetime(2014,6,22, 23, 59, tzinfo=timezone.get_current_timezone())
 COLLECTION=PuzzleCollection.objects.get(title=u"第一次競賽")
 COLLECTION2=PuzzleCollection.objects.get(title=u"測試")
+COLLECTION3=PuzzleCollection.objects.get(title=u"蟒極客第二次競賽")
 COLLECTIONS=[COLLECTION, COLLECTION2]
 PUZZLES = COLLECTION.puzzle_set
 PUZZLES2 = COLLECTION2.puzzle_set
+PUZZLES3 = COLLECTION3.puzzle_set
 def game_open():
   return TIME_START <= timezone.now() <= TIME_END
 
-def index2(request, pk):
+def index(request, pk, force_open=False):
   try:
     user= request.user.profile
   except:
     user = None
   puzzle, puzzle_ds = None, []
-  puzzle_list = Puzzle.objects.all()
+  puzzle_list = PUZZLES3.all() if game_open() else set()
   if pk:
     try:
       puzzle = puzzle_list.get(pk=pk)
@@ -51,19 +55,17 @@ def index2(request, pk):
     rtn.append( (p, datas))
     if p == puzzle:
       puzzle_ds = datas
-  context = { "puzzle_list" : rtn, "info": info, "puzzle": puzzle, "puzzle_ds": puzzle_ds, "game_open": True,
+  context = { "puzzle_list" : rtn, "info": info, "puzzle": puzzle, "puzzle_ds": puzzle_ds, "game_open": game_open() or force_open,
 	     "TIME_START":TIME_START, "TIME_END": TIME_END}  
   return render(request, "puzzle/index.html", context)
 
-###############################################################3
-
-def index(request, pk):
+def index0(request, pk, force_open=False):
   try:
     user= request.user.profile
   except:
     user = None
   puzzle, puzzle_ds = None, []
-  puzzle_list = PUZZLES.all()|PUZZLES2.all()
+  puzzle_list = PUZZLES.all()|PUZZLES2.all() if game_open() else set()
   if pk:
     try:
       puzzle = puzzle_list.get(pk=pk)
@@ -87,7 +89,7 @@ def index(request, pk):
     rtn.append( (p, datas))
     if p == puzzle:
       puzzle_ds = datas
-  context = { "puzzle_list" : rtn, "info": info, "puzzle": puzzle, "puzzle_ds": puzzle_ds, "game_open": game_open(),
+  context = { "puzzle_list" : rtn, "info": info, "puzzle": puzzle, "puzzle_ds": puzzle_ds, "game_open": game_open() or force_open,
 	     "TIME_START":TIME_START, "TIME_END": TIME_END}  
   return render(request, "puzzle/index.html", context)
 
@@ -162,7 +164,7 @@ def submit(request, pk):
       ans.save()
       if result:
 	timedelta = (timezone.now() - TIME_START).total_seconds()
-        user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection in COLLECTIONS))
+        user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection == COLLECTION3)+1) - timedelta
         user.save()
   return HttpResponseRedirect(reverse("puzzle:puzzle", args=(d.puzzle.pk,)))
 
@@ -178,7 +180,7 @@ def del_answer(request, pk):
     return HttpResponse("本題尚未作答，無法刪除")
   ans.delete()
   timedelta = (timezone.now() - TIME_START).total_seconds()
-  user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection==COLLECTION)+ 1) - timedelta
+  user.score = 10**6*(sum(x.dataset.score for x in user.answer_set.filter(result=True) if x.dataset.puzzle.collection==COLLECTION3)+ 1) - timedelta
   user.save()
   return HttpResponseRedirect(reverse("puzzle:puzzle", args=(d.puzzle.pk,)))
 
